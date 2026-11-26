@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e90ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>SUBWAY RUSH 3D</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <div id="game-root">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Speed Lines & Flash FX -->
+    <div id="speed-lines" class="fx-layer hidden"></div>
+    <div id="hit-flash" class="fx-layer"></div>
+
+    <!-- Loading Splash -->
+    <div id="loading-screen" class="overlay-screen">
+      <div class="logo-stack">
+        <div class="logo-sub">WORLD TOUR EDITION</div>
+        <h1 class="game-logo">SUBWAY<span>RUSH</span></h1>
+        <div class="logo-badge">3D</div>
+      </div>
+      <div class="loader-box">
+        <div class="loader-bar-track">
+          <div id="loader-bar-fill" class="loader-bar-fill"></div>
+        </div>
+        <div id="loader-status" class="loader-status">Loading 3D Characters &amp; Trains... 0%</div>
+      </div>
+    </div>
+
+    <!-- Live Title Overlay (3D world visible behind) -->
+    <div id="title-screen" class="overlay-screen transparent hidden">
+      <div class="title-top-bar">
+        <div class="currency-pill">
+          <span class="coin-dot"></span>
+          <span id="title-coins">0</span>
+        </div>
+        <div class="currency-pill key-pill">
+          <span class="key-icon">🔑</span>
+          <span id="title-keys">3</span>
+        </div>
+        <div class="currency-pill mult-pill">
+          <span>x</span><span id="title-mult">1</span>
+        </div>
+        <button id="btn-sound-title" class="icon-btn" aria-label="Toggle Sound">🔊</button>
+      </div>
+
+      <div class="title-center-brand">
+        <div class="high-score-ribbon">
+          <span>TOP RUN</span>
+          <strong id="title-highscore">0</strong>
+        </div>
+        <h1 class="game-logo title-logo">SUBWAY<span>RUSH</span></h1>
+      </div>
+
+      <div id="tap-to-play" class="tap-play-zone">
+        <div class="tap-play-pill">TAP TO PLAY</div>
+        <div class="controls-hint">Swipe Left/Right • Up Jump • Down Roll • Double-Tap Board</div>
+      </div>
+
+      <div class="title-bottom-dock">
+        <button id="btn-open-missions" class="dock-btn dock-purple">
+          <span class="dock-ico">🎯</span>
+          <span>MISSIONS</span>
+        </button>
+        <button id="btn-open-crew" class="dock-btn dock-cyan">
+          <span class="dock-ico">🛹</span>
+          <span>ME</span>
+        </button>
+        <button id="btn-open-shop" class="dock-btn dock-gold">
+          <span class="dock-ico">⚡</span>
+          <span>SHOP</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- In-Game HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="hud-left">
+          <button id="btn-pause" class="hud-pause-btn" aria-label="Pause">❚❚</button>
+          <div id="powerup-stack" class="powerup-stack"></div>
+        </div>
+        <div class="hud-right">
+          <div class="score-panel">
+            <div class="score-mult" id="hud-mult">x1</div>
+            <div class="score-value" id="hud-score">000000</div>
+          </div>
+          <div class="coin-panel">
+            <span class="coin-dot"></span>
+            <span id="hud-coins">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast notifications (Mission complete / Stumble / Board active) -->
+      <div id="hud-toast" class="hud-toast hidden"></div>
+
+      <!-- Quick Hoverboard Action Button (bottom-right for effortless one-thumb play) -->
+      <button id="btn-hoverboard" class="board-fab" aria-label="Activate Hoverboard">
+        <span class="board-fab-ico">🛹</span>
+        <span id="hud-boards-count" class="board-fab-count">3</span>
+      </button>
+    </div>
+
+    <!-- Pause Modal -->
+    <div id="pause-screen" class="overlay-screen modal-dim hidden">
+      <div class="arcade-card">
+        <h2 class="card-title">PAUSED</h2>
+        <div class="mission-mini-box">
+          <div class="mission-mini-label">ACTIVE MISSION (+1x Multiplier)</div>
+          <div id="pause-mission-text" class="mission-mini-text">Collect 50 Coins</div>
+          <div class="mini-progress-track"><div id="pause-mission-bar" class="mini-progress-fill"></div></div>
+        </div>
+        <div class="card-actions-col">
+          <button id="btn-resume" class="arcade-btn btn-green">RESUME RUN</button>
+          <button id="btn-pause-sound" class="arcade-btn btn-blue">SOUND: ON</button>
+          <button id="btn-quit" class="arcade-btn btn-red">QUIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Me (Revive with Key) -->
+    <div id="revive-screen" class="overlay-screen modal-dim hidden">
+      <div class="arcade-card revive-card">
+        <h2 class="card-title">SAVE ME!</h2>
+        <div class="revive-ring-wrap">
+          <div id="revive-timer" class="revive-timer">4</div>
+        </div>
+        <button id="btn-revive-key" class="arcade-btn btn-gold">
+          🔑 USE <span id="revive-cost">1</span> KEY
+        </button>
+        <button id="btn-skip-revive" class="text-skip-btn">No thanks, end run</button>
+      </div>
+    </div>
+
+    <!-- Game Over Summary -->
+    <div id="gameover-screen" class="overlay-screen modal-dim hidden">
+      <div class="arcade-card summary-card">
+        <div id="new-record-badge" class="record-badge hidden">★ NEW HIGH SCORE! ★</div>
+        <h2 class="card-title">RUN OVER</h2>
+        <div class="summary-grid">
+          <div class="summary-stat">
+            <span class="stat-label">SCORE</span>
+            <strong id="go-score" class="stat-val">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">BEST</span>
+            <strong id="go-best" class="stat-val gold-text">0</strong>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">COINS</span>
+            <strong id="go-coins" class="stat-val">+0</strong>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">DISTANCE</span>
+            <strong id="go-dist" class="stat-val">0m</strong>
+          </div>
+        </div>
+        <div class="card-actions-row">
+          <button id="btn-go-home" class="arcade-btn btn-blue">HOME</button>
+          <button id="btn-play-again" class="arcade-btn btn-green">PLAY AGAIN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crew / Shop / Missions Drawer -->
+    <div id="drawer-modal" class="overlay-screen modal-dim hidden">
+      <div class="arcade-card drawer-card">
+        <div class="drawer-header">
+          <h2 id="drawer-title" class="card-title">SHOP</h2>
+          <div class="drawer-wallet">
+            <span class="coin-dot"></span>
+            <span id="drawer-coins">0</span>
+          </div>
+          <button id="btn-close-drawer" class="close-x-btn">✕</button>
+        </div>
+        <div id="drawer-content" class="drawer-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
