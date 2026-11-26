@@ -1,0 +1,15 @@
+{
+  "appId": "com.mehedi.subwayrush3d",
+  "appName": "Subway Rush 3D",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#1e90ff",
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
